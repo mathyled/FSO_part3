@@ -1,9 +1,19 @@
 console.log("Hello, World!");
 console.log("This is a simple Node.js application.");
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 app.use(express.json());
+app.use(morgan("tiny"));
+// Token personalizado para mostrar el body en POST
+morgan.token("body", (req) => {
+  return req.method === "POST" ? JSON.stringify(req.body) : "";
+});
 
+// Configura morgan para usar el nuevo token
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 let persons = [
   {
