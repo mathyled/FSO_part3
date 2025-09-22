@@ -29,15 +29,19 @@ app.get("/api/persons", (request, response) => {
 
 })
 
-// app.get("/info", (request, response) => {
-//   const date = new Date();
-//   const info = `Phonebook has info for ${persons.length} people<br>${date}`
-//   response.send(info);
-// })
+app.get("/info", (request, response) => {
+  const date = new Date();
+  Person.find({}).then(persons => {
+    console.log("persons", persons)
+    const info = `Phonebook has info for ${persons.length} people<br>${date}`
+    response.send(info);
+  }
+  )
+})
 
 app.get("/api/persons/:id", (request, response) => {
   const id = Number(request.params.id);
-  const person = Person.findById(id)
+ Person.findById(id)
     .then(person => {
       if (person) {
         response.json(person);
@@ -49,16 +53,19 @@ app.get("/api/persons/:id", (request, response) => {
 
 
 
-// app.delete("/api/persons/:id", (request, response) => {
-//   const id = Number(request.params.id);
-//   const person = persons.find(p => p.id === id);
-//   if (!person) {
-//     return response.status(404).send({ error: "Person not found" });
-//   } else {
-//     persons = persons.filter(p => p.id !== id);
-//     return response.status(204).end();
-//   }
-// })
+app.delete("/api/persons/:id", (request, response) => {
+  const id = Number(request.params.id);
+  Person.findById(id)
+  .then(person => {
+    console.log("person to delete", person);
+
+  })
+  .catch(error => {
+    console.log("error", error);
+    response.status(400).send({ error: 'malformatted id' })
+  }
+  )
+})
 
 
 app.post("/api/persons", (request, response) => {
@@ -67,26 +74,16 @@ app.post("/api/persons", (request, response) => {
   if (!body.name, !body.number) {
     return response.status(400).json({ error: "Name and number are required" });
   }
-  // if(persons.some(person => person.name === body.name)){
-  //   return response.status(400).json({ error: "Name must be unique" });
-  // }
+
   Person.findOne({ name: body.name }).then(existingPerson => {
     if (existingPerson) {
       return response.status(400).json({ error: "Name must be unique" });
     }
 
-    // const newPerson = {
-    //   id: Math.floor(Math.random() * 10000),
-    //   name: body.name,
-    //   number: body.number
-    // }
-
     const newPerson = new Person({
       name: body.name,
       number: body.number
     });
-
-    // persons = persons.concat(newPerson);
 
     newPerson.save().then(savedPerson => {
       response.json(savedPerson);
